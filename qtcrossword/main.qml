@@ -2,13 +2,22 @@ import QtQuick 2.5
 import QtQuick.Controls 1.2
 import QtQuick.Dialogs 1.0
 
+import CrossWord 1.0
+import DataFile 1.0
+
 
 ApplicationWindow {
     id: myApplication
     visible: true
     width: 640
     height: 480
-    title: qsTr("Hello World")
+    title: qsTr("CrossWord")
+
+    DataFile {
+        id: dataFile
+        objectName: "dataFile"
+        filename: "<unset>"
+    }
 
     menuBar: MenuBar {
         Menu {
@@ -44,51 +53,6 @@ ApplicationWindow {
         border.color: "steelblue"
     }
 
-
-    ListModel {
-        id: listModel
-        ListElement {
-            word: "ZACCHEAUS"
-        }
-        ListElement {
-            word: "JAMESANDJOHN"
-        }
-        ListElement {
-            word: "REVELATION"
-        }
-        ListElement {
-            word: "CORINTHIANS"
-        }
-        ListElement {
-            word: "EPHESIANS"
-        }
-        ListElement {
-            word: "TIMOTHY"
-        }
-        ListElement {
-            word: "SILVANUS"
-        }
-        ListElement {
-            word: "JONATHAN"
-        }
-        ListElement {
-            word: "MATTHIAS"
-        }
-        ListElement {
-            word: "APOLLOS"
-        }
-        ListElement {
-            word: "REPENTANCE"
-        }
-        ListElement {
-            word: "CHARITY"
-        }
-        ListElement {
-            word: "HOLYSPIRIT"
-        }
-    }
-
-
     Rectangle {
         id: rightSideBar
         anchors.left: grid.right; anchors.right: parent.right
@@ -120,61 +84,35 @@ ApplicationWindow {
 
             height: parent.height*0.5
 
-
             ScrollView {
                 anchors.left: parent.left; anchors.right: parent.right
                 anchors.top: parent.top; anchors.bottom: parent.bottom
 
                 ListView {
+                    objectName: "optionsList"
                     id: optionsList
                     model: ListModel {
+                        objectName: "optionsListModel"
                         id: optionsListModel
                         ListElement {
-                            word: "ZACCHEAUS"
+                            name: "ZACCHEUS"; pcolor: "black"
                         }
                         ListElement {
-                            word: "JAMESANDJOHN"
+                            name: "MATTHIAS"; pcolor: "blue"
                         }
                         ListElement {
-                            word: "REVELATION"
+                            name: "BARNABUS"; pcolor: "green"
                         }
-                        ListElement {
-                            word: "CORINTHIANS"
-                        }
-                        ListElement {
-                            word: "EPHESIANS"
-                        }
-                        ListElement {
-                            word: "TIMOTHY"
-                        }
-                        ListElement {
-                            word: "SILVANUS"
-                        }
-                        ListElement {
-                            word: "JONATHAN"
-                        }
-                        ListElement {
-                            word: "MATTHIAS"
-                        }
-                        ListElement {
-                            word: "APOLLOS"
-                        }
-                        ListElement {
-                            word: "REPENTANCE"
-                        }
-                        ListElement {
-                            word: "CHARITY"
-                        }
-                        ListElement {
-                            word: "HOLYSPIRIT"
-                        }
+                    }
+                    function append(newElement) {
+                        optionsListModel.append(newElement)
                     }
                     delegate: Component {
                         Item {
                             anchors.left: parent.left; anchors.right: parent.right
                             height: 16
                             Column {
-                                Text { text: word }
+                                Text { text: name; color: pcolor }
                             }
                             MouseArea {
                                 anchors.fill: parent
@@ -184,8 +122,8 @@ ApplicationWindow {
                     }
 
                     highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
-                    onCurrentItemChanged: console.log(optionsListModel.get(optionsList.currentIndex).word + ' selected')
-                    focus: true
+                    onCurrentItemChanged: console.log(optionsListModel.get(optionsList.currentIndex).name + ' selected')
+                    focus: false
                 }
             }
         }
@@ -205,35 +143,95 @@ ApplicationWindow {
             }
         }
 
-
         Rectangle {
             id: wordsToPlaceRect
 
             anchors.left: parent.left; anchors.right: parent.right
-            anchors.top: wordsToPlaceHeadingRect.bottom; anchors.bottom: addWordsButton.top
+            anchors.top: wordsToPlaceHeadingRect.bottom; anchors.bottom: deleteWordsButton.top
             anchors.leftMargin: 3
 
             ScrollView {
-                anchors.left: parent.left; anchors.right: parent.right;
-                anchors.top: parent.top; anchors.bottom: parent.bottom
+                anchors.fill: parent
 
                 ListView {
-                    model: listModel
-                    delegate: Text {
-                        text: word
+                    objectName: "wordsList"
+                    id: wordsList
+                    model: ListModel {
+                        objectName: "wordsListModel"
+                        id: wordsListModel
+                        ListElement {
+                            word: "ZACCHEUS"; pcolor: "black"
+                        }
+                        ListElement {
+                            word: "MATTHIAS"; pcolor: "blue"
+                        }
+                        ListElement {
+                            word: "BARNABUS"; pcolor: "green"
+                        }
                     }
+                    function append(newElement) {
+                        wordsListModel.append(newElement)
+                    }
+                    function deleteWord() {
+                        wordsListModel.remove(currentIndex)
+                    }
+                    function addWord(newWord) {
+                        wordsListModel.append({"word":newWord, "pcolor":"black"})
+                    }
+
+                    delegate: Component {
+                        Item {
+                            anchors.left: parent.left; anchors.right: parent.right
+                            height: 16
+                            Column {
+                                Text { text: word; color: pcolor }
+                            }
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: wordsList.currentIndex = index
+                            }
+                        }
+                    }
+
+                    highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
+                    onCurrentItemChanged: console.log(wordsListModel.get(wordsList.currentIndex).word + ' selected')
+                    focus: true
                 }
             }
         }
 
         Button {
-            id: addWordsButton
-            text: qsTr("Add Words")
+            id: deleteWordsButton
+            text: qsTr("Delete")
             anchors.left: parent.left; anchors.right: parent.right;
-            anchors.bottom: parent.bottom
+            anchors.bottom: addRect.top
             anchors.leftMargin: 3
             height: 20
-            onClicked: console.log("Button Pressed.");
+            onClicked: wordsList.deleteWord();
+        }
+        Rectangle {
+            id: addRect
+            anchors.left: parent.left; anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            height: 24
+            border.width: 2
+            border.color: "steelblue"
+            color: "steelblue"
+            Label {
+                id: addLabel
+                anchors.left: parent.left; anchors.bottom: parent.bottom
+                anchors.leftMargin: 3
+                text: qsTr("Add:")
+                width: 30
+                color: "white"
+            }
+            TextInput {
+                id: addWordsInput
+                anchors.left: addLabel.right; anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.leftMargin: 3
+                onAccepted: wordsList.addWord(text)
+            }
         }
     }
 
@@ -274,10 +272,42 @@ ApplicationWindow {
                     anchors.top: parent.top; anchors.bottom: parent.bottom
 
                     ListView {
-                        model: listModel
-                        delegate: Text {
-                            text: word
+                        objectName: "acrossList"
+                        id: acrossList
+                        model: ListModel {
+                            objectName: "acrossListModel"
+                            id: acrossListModel
+                            ListElement {
+                                word: "MATTHIAS"; pcolor: "blue"
+                            }
                         }
+                        function append(newElement) {
+                            acrossListModel.append(newElement)
+                        }
+                        function deleteWord() {
+                            acrossListModel.remove(currentIndex)
+                        }
+                        function addWord(newWord) {
+                            acrossListModel.append({"word":newWord, "pcolor":"black"})
+                        }
+
+                        delegate: Component {
+                            Item {
+                                anchors.left: parent.left; anchors.right: parent.right
+                                height: 16
+                                Column {
+                                    Text { text: word; color: pcolor }
+                                }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: acrossList.currentIndex = index
+                                }
+                            }
+                        }
+
+                        highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
+                        onCurrentItemChanged: console.log(acrossListModel.get(acrossList.currentIndex).word + ' selected')
+                        focus: false
                     }
                 }
             }
@@ -315,10 +345,39 @@ ApplicationWindow {
                     anchors.top: parent.top; anchors.bottom: parent.bottom
 
                     ListView {
-                        model: listModel
-                        delegate: Text {
-                            text: word
+                        objectName: "downList"
+                        id: downList
+                        model: ListModel {
+                            objectName: "downListModel"
+                            id: downListModel
                         }
+                        function append(newElement) {
+                            downListModel.append(newElement)
+                        }
+                        function deleteWord() {
+                            downListModel.remove(currentIndex)
+                        }
+                        function addWord(newWord) {
+                            downListModel.append({"word":newWord, "pcolor":"black"})
+                        }
+
+                        delegate: Component {
+                            Item {
+                                anchors.left: parent.left; anchors.right: parent.right
+                                height: 16
+                                Column {
+                                    Text { text: word; color: pcolor }
+                                }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: downList.currentIndex = index
+                                }
+                            }
+                        }
+
+                        highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
+                        onCurrentItemChanged: console.log(downListModel.get(downList.currentIndex).word + ' selected')
+                        focus: false
                     }
                 }
             }

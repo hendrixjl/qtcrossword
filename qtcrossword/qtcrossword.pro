@@ -1,8 +1,10 @@
 TEMPLATE = app
 
-QT += qml quick widgets
+QT += core qml quick widgets
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    crossword.cpp \
+    datafile.cpp
 
 RESOURCES += qml.qrc
 
@@ -11,4 +13,8 @@ QML_IMPORT_PATH =
 
 # Default rules for deployment.
 include(deployment.pri)
+
+HEADERS += \
+    crossword.h \
+    datafile.h
 
